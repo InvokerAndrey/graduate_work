@@ -1,0 +1,16 @@
+{% extends "HRMS/base.html" %}
+{% block content %}
+    <div class="content-section">
+        <form method="POST">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Удаление работника</legend>
+                <h2>Вы уверены, что хотите удалить работника "{{ object.first_name }} {{ object.last_name }}"? </h2>
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-danger" type="submit">Да, удалить</button>
+                <a class="btn btn-outline-secondary" href="{% url 'employee-detail' object.id %}">Отмена</a>
+            </div>
+        </form>
+    </div>
+{% endblock content %}

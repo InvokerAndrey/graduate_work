@@ -1,0 +1,63 @@
+{% extends "HRMS/base.html" %}
+{% block content %}
+    <article class="media content-section">
+        <div class="media-body">
+            <div class="media">
+                <img class="rounded-circle account-img" src="{{ employee.image.url }}">
+            </div>
+            <div class="article-metadata">
+                <h3 class="mr-2">Персональная информация:</h3>
+                <p class="mr-2"><b>Имя:</b>  {{ object.first_name }}</p>
+                <p class="mr-2"><b>Фамилия:</b>   {{ object.last_name }}</p>
+                <p class="mr-2"><b>Пол:</b>      {{ object.gender }}</p>
+                <p class="mr-2"><b>Дата рождения:</b>: {{ object.birthday|date:"F d, Y" }}</p>
+                <p class="mr-2"><b>Должность:</b>    {{ object.position }}</p>
+            </div>
+            <div class="article-metadata">
+                <h3 class="mr-2">Образование:</h3>
+                {% for education in object.education_set.all %}
+                    <div class="article-metadata">
+                        <p class="mr-2"><b>Тип образования:</b>     {{ education.education_type }}</p>
+                        <p class="mr-2"><b>Учебное заведение:</b>   {{ education.institution_name }}</p>
+                        <p class="mr-2"><b>Факультет:</b>            {{ education.faculty }}</p>
+                        <p class="mr-2"><b>Специальность:</b>         {{ education.specialty }}</p>
+                        <p class="mr-2"><b>Дата поступления:</b>     {{ education.beginning_date|date:"F d, Y" }}</p>
+                        <p class="mr-2"><b>Дата окончания:</b>    {{ education.expiration_date|date:"F d, Y" }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="article-metadata">
+                <h3 class="mr-2">Опыт работы:</h3>
+                {% for experience in object.experience_set.all %}
+                    <div class="article-metadata">
+                        <p class="mr-2"><b>Компания:</b>             {{ experience.job }}</p>
+                        <p class="mr-2"><b>Дата начала работы:</b>       {{ experience.beginning_date }}</p>
+                        <p class="mr-2"><b>Дата окончания:</b>      {{ experience.expiration_date }}</p>
+                        <p class="mr-2"><b>Должность:</b>:            {{ experience.position }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="article-metadata">
+                <h3 class="mr-2">Задачи:</h3>
+                {% for task in object.task_set.all %}
+                <div class="article-metadata">
+                    <p class="mr-2"><b>Кад задачи:</b>       {{ task.code }}</p>
+                    <p class="mr-2"><b>Описание:</b>     {{ task.description }}</p>
+                    <p class="mr-2"><b>Дата начала:</b>  {{ task.beginning_date|date:"F d, Y" }}</p>
+                    <p class="mr-2"><b>Крайний срок окончания:</b>:       {{ task.deadline|date:"F d, Y" }}</p>
+                    <p class="mr-2"><b>Дата фактического окончания:</b>  {{ task.actual_expiration_date|date:"F d, Y" }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            <form method="GET">
+                <a class="btn btn-outline-info mt-1 mb-1" type="submit" href="{% url 'employee-update' employee.id %}">Персональные данные</a>
+                <a class="btn btn-outline-info mt-1 mb-1 ml-2" type="submit" href="{% url 'educations-update' employee.id %}">Образование</a>
+                <a class="btn btn-outline-info mt-1 mb-1 ml-2" type="submit" href="{% url 'experiences-update' employee.id %}">Опыт работы</a>
+                <a class="btn btn-outline-info mt-1 mb-1 ml-2" type="submit" href="{% url 'tasks-update' employee.id %}">Задачи</a>
+                <a class="btn btn-outline-info mt-1 mb-1 ml-2" type="submit" href="{% url 'generate-pdf' pk=employee.id %}">PDF отчет</a>
+                <a class="btn btn-outline-danger mt-1 mb-1 ml-2" href="{% url 'employee-delete' employee.id %}">Удалить</a>
+            </form>
+        </div>
+    </div>
+    </article>
+{% endblock content %}

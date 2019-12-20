@@ -1,0 +1,24 @@
+{% extends "HRMS/base.html" %}
+{% block content %}
+  <a class="btn btn-outline-info mb-3 ml-4" href="{% url 'employee-create' %}">Добавить нового сотрудника</a>
+  <a class="btn btn-outline-info mb-3 ml-4" href="{% url 'profile-method' %}">Оценить сотрудников</a>
+  {% for employee in employees %}
+    {% if user.pk == employee.user_id %}
+      <article class="media content-section">
+            <div class="media">
+              <img class="rounded-circle account-img" src="{{ employee.image.url }}">
+            </div>
+            <div class="media-body">
+              <p class="mr-2"><b>Имя:</b>  {{ employee.first_name }}</p>
+              <p class="mr-2"><b>Фамилия:</b>   {{ employee.last_name }}</p>
+              <p class="mr-2"><b>Пол:</b>      {{ employee.gender }}</p>
+              <p class="mr-2"><b>Дата рождения:</b>: {{ employee.birthday|date:"F d, Y" }}</p>
+              <p class="mr-2"><b>Должность:</b>    {{ employee.position }}</p>
+            </div>
+            <form method="GET" action="{% url 'employee-detail' employee.id %}">
+              <button class="btn btn-outline-info" type="submit">Подробнее</button>
+            </form>
+      </article>
+    {% endif %}
+  {% endfor %}
+{% endblock content %}
