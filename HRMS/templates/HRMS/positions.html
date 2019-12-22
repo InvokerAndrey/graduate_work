@@ -1,0 +1,17 @@
+{% extends "HRMS/base.html" %}
+{% block content %}
+  <a class="btn btn-outline-info mb-3 ml-4" href="{% url 'position-create' %}">Добавить новую должность</a>
+  <a class="btn btn-outline-info mb-3 ml-4" href="{% url 'profile-method' %}">Оценить сотрудников</a>
+  {% for position in positions %}
+    {% if user.pk == position.user_id %}
+      <article class="media content-section">
+            <div class="media-body">
+              <h3 class="mr-2"><b>{{ position.position_name }}</b</h3>
+            </div>
+            <form method="GET" action="{% url 'position-detail' position.id %}">
+              <button class="btn btn-outline-info" type="submit">Подробнее</button>
+            </form>
+      </article>
+    {% endif %}
+  {% endfor %}
+{% endblock content %}

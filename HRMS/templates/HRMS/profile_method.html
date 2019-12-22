@@ -4,18 +4,25 @@
   <form method="GET">
     {{ form|crispy }}
     <div class="form-group">
-        <button class="btn btn-outline-info" type="submit">OK</button>
+        <h1>{{ position }}</h1>
     </div>
     {% for employee, raiting in raited_employees.items %}
         <div class="article-metadata">
-            <h3 class="mr-2">Персональные данные:</h3>
+            <h3 class="mr-2">Кандидат:</h3>
             <p class="mr-2"><b>Имя:</b>  {{ employee.first_name }}</p>
             <p class="mr-2"><b>Фамилия:</b>   {{ employee.last_name }}</p>
             <p class="mr-2"><b>Пол:</b>      {{ employee.gender }}</p>
-            <p class="mr-2"><b>Дата рождения:</b>: {{ employee.birthday|date:"F d, Y" }}</p>
-            <p class="mr-2"><b>Должность:</b>    {{ employee.position }}</p>
-            <p class="mr-2"><b>Оценка:</b>    {{ raiting }}</p>
+            <p class="mr-2"><b>Дата рождения:</b> {{ employee.birthday|date:"F d, Y" }}</p>
+            <p class="mr-2"><b>Оценка:</b>    {{ raiting.0 }}</p>
+            {% if raiting.1 %}
+              <p class="mr-2"><b>Вывод:</b> Подходит под требования должности</p>
+            {% else %}
+              <p class="mr-2"><b>Вывод:</b> Не подходит под требования должности</p>
+            {% endif %}
         </div>
     {% endfor %}
+    <div class="form-group">
+        <button class="btn btn-outline-info" type="submit">OK</button>
+    </div>
   </form>
 {% endblock content %}

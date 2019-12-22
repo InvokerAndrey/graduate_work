@@ -11,7 +11,11 @@
                 <p class="mr-2"><b>Фамилия:</b>   {{ object.last_name }}</p>
                 <p class="mr-2"><b>Пол:</b>      {{ object.gender }}</p>
                 <p class="mr-2"><b>Дата рождения:</b>: {{ object.birthday|date:"F d, Y" }}</p>
-                <p class="mr-2"><b>Должность:</b>    {{ object.position }}</p>
+                {% if object.position == None %}
+                    <p class="mr-2"><b>Должность:</b> Не назначен</p>
+                {% else %}
+                    <p class="mr-2"><b>Должность:</b>    {{ object.position }}</p>
+                {% endif %}
             </div>
             <div class="article-metadata">
                 <h3 class="mr-2">Образование:</h3>
@@ -49,12 +53,34 @@
                 </div>
                 {% endfor %}
             </div>
+            <div class="article-metadata">
+                <h3 class="mr-2">Иностранные языки:</h3>
+                {% for foreignlanguage in object.foreignlanguage_set.all %}
+                <div class="article-metadata">
+                    <p class="mr-2"><b>Язык:</b>       {{ foreignlanguage.language_name }}</p>
+                    <p class="mr-2"><b>Уровень:</b>    {{ foreignlanguage.level }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="article-metadata">
+                <h3 class="mr-2">Дополнительные курсы:</h3>
+                {% for course in object.course_set.all %}
+                <div class="article-metadata">
+                    <p class="mr-2"><b>Компания:</b>                 {{ course.company }}</p>
+                    <p class="mr-2"><b>Специализация курсов:</b>     {{ course.specialization }}</p>
+                </div>
+                {% endfor %}
+            </div>
             <form method="GET">
                 <a class="btn btn-outline-info mt-1 mb-1" type="submit" href="{% url 'employee-update' employee.id %}">Персональные данные</a>
                 <a class="btn btn-outline-info mt-1 mb-1 ml-2" type="submit" href="{% url 'educations-update' employee.id %}">Образование</a>
                 <a class="btn btn-outline-info mt-1 mb-1 ml-2" type="submit" href="{% url 'experiences-update' employee.id %}">Опыт работы</a>
-                <a class="btn btn-outline-info mt-1 mb-1 ml-2" type="submit" href="{% url 'tasks-update' employee.id %}">Задачи</a>
-                <a class="btn btn-outline-info mt-1 mb-1 ml-2" type="submit" href="{% url 'generate-pdf' pk=employee.id %}">PDF отчет</a>
+                <a class="btn btn-outline-info mt-1 mb-1 ml-2" type="submit" href="{% url 'languages-update' employee.id %}">Иностранные языки</a>
+                <a class="btn btn-outline-info mt-1 mb-1 ml-2" type="submit" href="{% url 'courses-update' employee.id %}">Курсы</a>
+                {% if object.position != None %}
+                    <a class="btn btn-outline-info mt-1 mb-1 ml-2" type="submit" href="{% url 'tasks-update' employee.id %}">Задачи</a>
+                    <a class="btn btn-outline-info mt-1 mb-1 ml-2" type="submit" href="{% url 'generate-pdf' pk=employee.id %}">PDF отчет</a>
+                {% endif %}
                 <a class="btn btn-outline-danger mt-1 mb-1 ml-2" href="{% url 'employee-delete' employee.id %}">Удалить</a>
             </form>
         </div>

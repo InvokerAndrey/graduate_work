@@ -17,26 +17,6 @@ class PositionFilter(forms.Form):
     position = forms.ModelChoiceField(required=False, label='Position', queryset=models.Position.objects.distinct('position_name'))
 
 
-class ForeignLanguageForm(forms.Form):
-    name_choices = [
-        'Английский',
-        'Немецкий',
-        'Испанский',
-        'Китайский',
-        'Французский',
-    ]
-    level_choices = [
-        'A1',
-        'A2',
-        'B1',
-        'B2',
-        'C1',
-        'C2',
-    ]
-    language_name = forms.ChoiceField(label='Язык', required=False, choices=name_choices)
-    level = forms.ChoiceField(label='Уровень', required=False, choices=level_choices)
-
-
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField()
     class Meta:
