@@ -88,6 +88,8 @@ def estimate(employees, position):
                 suits = False
         lang = False
         for language in employee.foreignlanguage_set.all():
+            raiting += 1
+            raiting += language.level
             if position.foreign_language == None:
                 lang = True
             if language.language_name == position.foreign_language:
