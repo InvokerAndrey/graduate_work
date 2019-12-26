@@ -3,8 +3,57 @@
 {% block content %}
   <form method="GET">
     {{ form|crispy }}
-    <div class="form-group">
-        <h1>{{ position }}</h1>
+    <!-- <div class="form-group">
+        <h1>{{ position.position_name }}</h1>
+        <h3>Требования:</h3>
+          {% if position.foreign_language == 'Нет' %}
+            <p class="mr-2"><b>Знание языка:</b>              {{ position.foreign_language }}</p>
+            {% else %}
+              <p class="mr-2"><b>Знание языка:</b>              {{ position.foreign_language }}</p>
+            {% if position.language_level == 1 %}
+              <p class="mr-2"><b>Уровень знания языка:</b> A1</p>
+            {% endif %}
+            {% if position.language_level == 2 %}
+              <p class="mr-2"><b>Уровень знания языка:</b> A2</p>
+            {% endif %}
+            {% if position.language_level == 3 %}
+              <p class="mr-2"><b>Уровень знания языка:</b> B1</p>
+            {% endif %}
+            {% if position.language_level == 4 %}
+              <p class="mr-2"><b>Уровень знания языка:</b> B2</p>
+            {% endif %}
+            {% if position.language_level == 5 %}
+              <p class="mr-2"><b>Уровень знания языка:</b> C1</p>
+            {% endif %}
+            {% if position.language_level == 6 %}
+              <p class="mr-2"><b>Уровень знания языка:</b> C2</p>
+            {% endif %}
+
+            {% endif %}
+            {% if position.education_required == 0 %}
+              <p class="mr-2"><b>Образование:</b> Образование не требуется</p>
+            {% endif %}
+            {% if position.education_required == 1 %}
+              <p class="mr-2"><b>Образование:</b> Среднее образование</p>
+            {% endif %}
+            {% if position.education_required == 2 %}
+              <p class="mr-2"><b>Образование:</b> Высшее образование</p>
+            {% endif %}
+            {% if position.experience_required == 1 %}
+              <p class="mr-2"><b>Опыт работы:</b> 1 год </p>
+            {% endif %}
+            {% if position.experience_required == 2 %}
+              <p class="mr-2"><b>Опыт работы:</b> 2 года </p>
+            {% endif %}
+            {% if position.experience_required == 3 %}
+              <p class="mr-2"><b>Опыт работы:</b> 3 года </p>
+            {% endif %}
+            {% if position.experience_required == 4 %}
+              <p class="mr-2"><b>Опыт работы:</b> 4 года </p>
+            {% endif %}
+            {% if position.experience_required == 5 %}
+              <p class="mr-2"><b>Опыт работы:</b> 5 лет </p>
+            {% endif %}
     </div>
     {% for employee, raiting in raited_employees.items %}
         <div class="article-metadata">
@@ -13,14 +62,23 @@
             <p class="mr-2"><b>Фамилия:</b>   {{ employee.last_name }}</p>
             <p class="mr-2"><b>Пол:</b>      {{ employee.gender }}</p>
             <p class="mr-2"><b>Дата рождения:</b> {{ employee.birthday|date:"F d, Y" }}</p>
-            <p class="mr-2"><b>Оценка:</b>    {{ raiting.0 }}</p>
-            {% if raiting.1 %}
-              <p class="mr-2"><b>Вывод:</b> Подходит под требования должности</p>
-            {% else %}
-              <p class="mr-2"><b>Вывод:</b> Не подходит под требования должности</p>
-            {% endif %}
+            <div class="article-metadata">
+              <p class="mr-2"><b>Оценка по образованию:</b>    {{ raiting.0 }}</p>
+              <p class="mr-2"><b>Оценка по опыту работы:</b>    {{ raiting.1 }}</p>
+              <p class="mr-2"><b>Оценка по знаниям иностранных языков:</b>    {{ raiting.2 }}</p>
+              <p class="mr-2"><b>Оценка по пройденным дополнительным курсам:</b>    {{ raiting.3 }}</p>
+              <p class="mr-2"><b>Итоговая оценка:</b>    {{ raiting.4 }}</p>
+              {% if raiting.5 %}
+                <p class="mr-2"><b>Вывод:</b> Подходит под требования должности</p>
+              {% else %}
+                <p class="mr-2"><b>Вывод:</b> Не подходит под требования должности</p>
+              {% endif %}
+            </div>
+            <form method="GET" action="{% url 'employee-detail' employee.id %}">
+              <button class="btn btn-outline-info" type="submit">Подробнее</button>
+            </form>
         </div>
-    {% endfor %}
+    {% endfor %} -->
     <div class="form-group">
         <button class="btn btn-outline-info" type="submit">OK</button>
     </div>

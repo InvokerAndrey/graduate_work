@@ -9,17 +9,17 @@ from django.forms import inlineformset_factory
 from django.http import HttpResponse
 from django.template.loader import get_template
 
-from .models import Employee, Education, Experience, Position, LaborCosts, Task, ForeignLanguage, Course
+from .models import Employee, Education, Experience, Position, Task, ForeignLanguage
 from .forms import (
     EmployeeForm, 
     EducationForm, 
     ExperienceForm,
     PositionForm, 
-    TaskForm, 
-    LaborCostsForm, 
+    TaskForm,  
     PositionFilter,
 )
 from .utils import render_to_pdf
+import HRMS.profile_method as method
 
 
 def home(request):
@@ -38,18 +38,27 @@ def profile_method(request):
         if form.cleaned_data['position']:
             employees = employees.filter(position__exact=None)
             position = positions.filter(position_name__exact=form.cleaned_data['position']).first()
-            est = estimate(employees, position)
-            raitings = est[0]
-            results = est[1]
-            raited_employees = dict()
-            for employee, raiting, result in zip(employees, raitings, results):
-                raited_employees[employee] = [raiting, result]
+            raitings = get_raitings(employees, position)
+            position_profile = method.position_profile(position)
+            # est = estimate(employees, position)
+            # education_raitings = est[0]
+            # experience_raitings = est[1]
+            # language_raitings = est[2]
+            # course_raitings = est[3]
+            # raitings = est[4]
+            # results = est[5]
+            # raited_employees = dict()
+            # for employee, education_raiting, experience_raiting, language_raiting, course_raiting, raiting, result in zip(employees, education_raitings, experience_raitings, language_raitings, course_raitings, raitings, results):
+            #     raited_employees[employee] = [education_raiting, experience_raiting, language_raiting, course_raiting, raiting, result]
+            index_range = range(1, len(employees) + 2)
             context = {
                 'employees': employees,
                 'position': position,
-                'raited_employees': raited_employees,
+                'raitings': raitings,
+                'index_range': index_range,
+                'position_profile': position_profile,
             }
-            return render(request, 'HRMS/profile_method.html', context)
+            return render(request, 'HRMS/test.html', context)
     # if form.is_valid():
     #     if form.cleaned_data['position']:
     #         employees = employees.filter(position__exact=form.cleaned_data['position'])
@@ -66,55 +75,109 @@ def profile_method(request):
     return render(request, 'HRMS/profile_method.html', {'form': form})
 
 
-def estimate(employees, position):
-    raitings = list()
-    results = list()
-    for employee in employees:
-        suits = True
-        raiting = 0
-        for education in employee.education_set.all():
-            if education.education_type < position.education_required:
-                suits = False
-            if education.education_type == 2:
-                raiting += 10
-            elif education.education_type == 1:
-                raiting += 5
-        for experience in employee.experience_set.all():
-            raiting += 5
-            exp = experience.expiration_date - experience.beginning_date
-            exp_years = exp.days / 365
-            raiting += int(exp_years * 5)
-            if exp_years < position.experience_required:
-                suits = False
-        lang = False
-        for language in employee.foreignlanguage_set.all():
-            raiting += 1
-            raiting += language.level
-            if position.foreign_language == None:
-                lang = True
-            if language.language_name == position.foreign_language:
-                if language.level >= position.language_level:
-                    lang = True
+def get_raitings(employees, position):
+    ed_raitings = method.education_raitings(employees, position)
+    exp_raitings = method.experience_raitings(employees, position)
+    lang_raitings = method.language_raitings(employees, position)
+    pers_raitings = method.personality_raitings(employees, position)
+    appear_raitings = method.appearance_raitings(employees, position)
+    raitings = dict()
+    result_raitings = list()
+    for employee, lang_raiting, ed_raiting, exp_raiting, pers_raiting, appear_raiting in zip(employees, lang_raitings, ed_raitings, exp_raitings, pers_raitings, appear_raitings):
+        result_raiting = round(
+            (lang_raiting * 0.37) + (ed_raiting * 0.26) + (exp_raiting * 0.15) + (pers_raiting * 0.14) + (appear_raiting * 0.08)
+        )
+        raitings[employee] = [lang_raiting, ed_raiting, exp_raiting, pers_raiting, appear_raiting, result_raiting]
+        result_raitings.append(result_raiting)
+    print(f'ИТОГОВЫЕ ОЦЕНКИ: {result_raitings}')
+    return raitings
 
-        if not lang:
-            suits = False
 
-        for course in employee.course_set.all():
-            raiting += 5
+# def estimate(employees, position):
+#     raitings = list()
+#     education_raitings = list()
+#     experience_raitings = list()
+#     course_raitings = list()
+#     language_raitings = list()
+#     results = list()
+#     for employee in employees:
+#         suits = True
+#         language_raiting = 0
+#         education_raiting = 0
+#         experience_raiting = 0
+#         course_raiting = 0
+#         raiting = 0
+#         if employee.education_set.all():
+#             for education in employee.education_set.all():
+#                 if education.education_type < position.education_required:
+#                     suits = False
+#                 if education.education_type == 2:
+#                     education_raiting += 10
+#                 elif education.education_type == 1:
+#                     education_raiting += 5
+#         elif position.education_required == 0:
+#             pass
+#         else:
+#             suits = False
+#         if employee.experience_set.all():
+#             for experience in employee.experience_set.all():
+#                 experience_raiting += 5
+#                 exp = experience.expiration_date - experience.beginning_date
+#                 exp_years = exp.days / 365
+#                 experience_raiting += int(exp_years * 5)
+#                 if exp_years < position.experience_required:
+#                     suits = False
+#         elif position.experience_required == 0:
+#             pass
+#         else:
+#             suits = False
+        
+#         if employee.foreignlanguage_set.all():
+#             lang = False
+#             if employee.foreignlanguage_set.all():
+#                 for language in employee.foreignlanguage_set.all():
+#                     language_raiting += 1
+#                     language_raiting += language.level
+#                     if position.foreign_language == None:
+#                         lang = True
+#                     if language.language_name == position.foreign_language:
+#                         if language.level >= position.language_level:
+#                             lang = True
 
-        if position.course_required == 'Нет':
-            pass
-        else:
-            spec = False
-            for course in employee.course_set.all():
-                if course.specialization == position.course_required:
-                    spec = True
-            if not spec:
-                suits = False
+#                 if not lang:
+#                     suits = False
+#         elif position.foreign_language == 'Нет':
+#             pass
+#         else:
+#             suits = False
 
-        raitings.append(raiting)
-        results.append(suits)
-    return (raitings, results)
+#         if employee.course_set.all():
+#             for course in employee.course_set.all():
+#                 course_raiting += 5
+
+#             if position.course_required == 'Нет':
+#                 pass
+#             else:
+#                 spec = False
+#                 for course in employee.course_set.all():
+#                     if course.specialization == position.course_required:
+#                         spec = True
+#                 if not spec:
+#                     suits = False
+#         elif position.course_required == 'Нет':
+#             pass
+#         else:
+#             suits = False
+
+#         raiting = language_raiting + course_raiting + education_raiting + experience_raiting
+
+#         language_raitings.append(language_raiting)
+#         course_raitings.append(course_raiting)
+#         education_raitings.append(education_raiting)
+#         experience_raitings.append(experience_raiting)
+#         raitings.append(raiting)
+#         results.append(suits)
+#     return (education_raitings, experience_raitings, language_raitings, course_raitings, raitings, results)
 
 
 class EmployeeListView(LoginRequiredMixin, ListView):
@@ -188,7 +251,6 @@ class PositionCreateView(LoginRequiredMixin, CreateView):
         'language_level',
         'education_required',
         'experience_required',
-        'course_required',
     ]
 
     def form_valid(self, form):
@@ -247,7 +309,6 @@ class PositionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         'language_level',
         'education_required',
         'experience_required',
-        'course_required',
     ]
     
     def test_func(self):
@@ -395,26 +456,60 @@ def update_languages(request, employee_id):
     return render(request, 'HRMS/languages_form.html', {'formset': formset})
 
 
-@login_required
-def update_courses(request, employee_id):
-    employee = Employee.objects.get(pk=employee_id)
-    CourseFormset = inlineformset_factory(
-        Employee,
-        Course,
-        fields = [
-            'company',
-            'specialization',
-        ],
-        extra=1
-    )
-    if request.method == 'POST':
-        formset = CourseFormset(request.POST, instance=employee)
-        if formset.is_valid():
-            formset.save()
-        return redirect('employee-detail', pk = employee.id)
+class PersonalityUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Employee
+    fields = [
+        'sociability',
+        'smart',
+        'emotionality',
+        'self_centeredness',
+        'tension',
+    ]
+    
+    def test_func(self):
+        employee = self.get_object()
+        if self.request.user == employee.user:
+            return True
+        return False
 
-    formset = CourseFormset(instance=employee)
+    def get_success_url(self):
+        return reverse_lazy('employee-detail', kwargs={'pk': self.object.pk})
 
-    absolute_url = reverse_lazy('employee-detail', kwargs={'pk': employee.id})
 
-    return render(request, 'HRMS/courses_form.html', {'formset': formset})
+class AppearanceUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Employee
+    fields = [
+        'attractiveness',
+    ]
+    
+    def test_func(self):
+        employee = self.get_object()
+        if self.request.user == employee.user:
+            return True
+        return False
+
+    def get_success_url(self):
+        return reverse_lazy('employee-detail', kwargs={'pk': self.object.pk})
+
+
+class PositionPersonalUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Position
+    fields = [
+        'sociability',
+        'smart',
+        'emotionality',
+        'self_centeredness',
+        'tension',
+        'attractiveness',
+    ]
+
+    template_name = 'HRMS/position_person_form.html'
+
+    def test_func(self):
+        employee = self.get_object()
+        if self.request.user == employee.user:
+            return True
+        return False
+
+    def get_success_url(self):
+        return reverse_lazy('employee-detail', kwargs={'pk': self.object.pk})

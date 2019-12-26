@@ -1,0 +1,111 @@
+{% extends "HRMS/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+  <form method="GET">
+    <div class="form-group">
+        <p>Группы требований и их удельные веса g(i):</p>
+        <table border="2">
+            <tr>
+                <td align="center">Требование</td>
+                <td align="center">Значимость g(i)</td>
+            </tr>
+            <tr>
+                <td align="center">Специальные знания</td>
+                <td align="center">0,37</td>
+            </tr>
+            <tr>
+                <td align="center">Образование</td>
+                <td align="center">0,26</td>
+            </tr>
+            <tr>
+                <td align="center">Опыт</td>
+                <td align="center">0,15</td>
+            </tr>
+            <tr>
+                <td align="center">Личность</td>
+                <td align="center">0,14</td>
+            </tr>
+            <tr>
+                <td align="center">Внешний облик</td>
+                <td align="center">0,08</td>
+            </tr>
+            <tr>
+                <td align="center"><b>Итого</b></td>
+                <td align="center"><b>1,00</b></td>
+            </tr>
+        </table>
+    </div>
+    <div class="form-group">
+        <p>Шкала оценок требований:</p>
+        <ol>
+            <li>Не проявляется требование</li>
+            <li>Недостаточно проявляется</li>
+            <li>Достаточно</li>
+            <li>Среднее проявление</li>
+            <li>Хорошее</li>
+            <li>Очень хорошее</li>
+            <li>Отлично</li>
+        </ol>
+    </div>
+    <div class="form-group">
+        <p>Сравнение профилей кандидатов и должности:</p>
+        <table border="2">
+            <tr>
+                <td align="center">Профиль</td>
+                {% for employee in employees %}
+                    <td align="center">Профиль кандидата {{ employee.first_name }} {{ employee.last_name }}</td>
+                {% endfor %}
+                <td align="center">Профиль требований должности {{position.position_name}}</td>
+            </tr>
+            <tr>
+                <td align="center">Требования</td>
+                {% for index in index_range %}
+                    <td align="center">{{ index }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td align="center">Специальные знания</td>
+                {% for employee, raiting in raitings.items %}
+                    <td align="center">{{ raiting.0 }}</td>
+                {% endfor %}
+                <td align="center">{{ position_profile.0 }}</td>
+            </tr>
+            <tr>
+                <td align="center">Образование</td>
+                {% for employee, raiting in raitings.items %}
+                    <td align="center">{{ raiting.1 }}</td>
+                {% endfor %}
+                <td align="center">{{ position_profile.1 }}</td>
+            </tr>
+            <tr>
+                <td align="center">Опыт</td>
+                {% for employee, raiting in raitings.items %}
+                    <td align="center">{{ raiting.2 }}</td>
+                {% endfor %}
+                <td align="center">{{ position_profile.2 }}</td>
+            </tr>
+            <tr>
+                <td align="center">Личность</td>
+                {% for employee, raiting in raitings.items %}
+                    <td align="center">{{ raiting.3 }}</td>
+                {% endfor %}
+                <td align="center">{{ position_profile.3 }}</td>
+            </tr>
+            <tr>
+                <td align="center">Внешний облик</td>
+                {% for employee, raiting in raitings.items %}
+                    <td align="center">{{ raiting.4 }}</td>
+                {% endfor %}
+                <td align="center">{{ position_profile.4 }}</td>
+            </tr>
+            <tr>
+                <td align="center">Итоговая оценка</td>
+                {% for employee, raiting in raitings.items %}
+                    <td align="center">{{ raiting.5 }}</td>
+                {% endfor %}
+                <td align="center">{{ position_profile.5 }}</td>
+            </tr>
+        </table>
+    </div>
+  </form>
+{% endblock content %}

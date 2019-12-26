@@ -5,8 +5,10 @@
         <form method="POST">
             {% csrf_token %}
             <fieldset class="form-group">
-                <legend class="border-bottom border-top mb-4">Должность</legend>
-                {{ form|crispy }}
+                <legend class="border-bottom border-top mb-4">Внешний облик</legend>
+                <p class="mr-2">Степень выраженности 1 до 7</p>
+                <p class="mr-2">1 - выраженное левое значение, 7 - выраженное правое значение</p>
+                {{ formset|crispy }}
             </fieldset>
             <div class="form-group">
                 <button class="btn btn-outline-info" type="submit">Сохранить</button>

@@ -113,11 +113,3 @@ class ExperienceForm(ModelForm):
             'position',
         ]
         # localized_fields = ('beginning_date', 'expiration_date',)
-
-
-class LaborCostsForm(ModelForm):
-    class Meta:
-        model = models.LaborCosts
-        fields = [
-            'spent_hours',
-        ]

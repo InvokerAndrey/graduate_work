@@ -14,7 +14,10 @@ from HRMS.views import (
     PositionDetailView,
     PositionCreateView,
     PositionUpdateView,
-    PositionDeleteView
+    PositionDeleteView,
+    PersonalityUpdateView,
+    AppearanceUpdateView,
+    PositionPersonalUpdateView
 )
 
 
@@ -31,13 +34,17 @@ urlpatterns = [
     path('positions/new/', PositionCreateView.as_view(), name='position-create'),
     path('employees/<int:pk>/update/', EmployeeUpdateView.as_view(), name='employee-update'),
     path('positions/<int:pk>/update/', PositionUpdateView.as_view(), name='position-update'),
+    path('positions/<int:pk>/personal/', PositionPersonalUpdateView.as_view(), name='position_person-update'),
+    path('positions/<int:pk>/update/', PersonalityUpdateView.as_view(), name='position_personality-update'),
+    path('positions/<int:pk>/update/', AppearanceUpdateView.as_view(), name='position_appearance-update'),
     path('employees/<int:pk>/delete/', EmployeeDeleteView.as_view(), name='employee-delete'),
     path('positions/<int:pk>/delete/', PositionDeleteView.as_view(), name='position-delete'),
     path('employees/<int:employee_id>/educations/', views.update_educations, name='educations-update'),
     path('employees/<int:employee_id>/experiences/', views.update_experiences, name='experiences-update'),
     path('employees/<int:employee_id>/tasks/', views.update_tasks, name='tasks-update'),
     path('employees/<int:employee_id>/languages/', views.update_languages, name='languages-update'),
-    path('employees/<int:employee_id>/courses/', views.update_courses, name='courses-update'),
+    path('employees/<int:pk>/personality/', PersonalityUpdateView.as_view(), name='personality-update'),
+    path('employees/<int:pk>/appearance/', AppearanceUpdateView.as_view(), name='appearance-update'),
     # path('tasks/', TaskListView.as_view(), name='tasks'),
     # path('tasks/<int:pk>/', TaskDetailView.as_view(), name='task-detail'),
     # path('tasks/new/', TaskCreateView.as_view(), name='task-create'),

@@ -2,10 +2,10 @@
 {% load crispy_forms_tags %}
 {% block content %}
     <div class="content-section">
-        <form method="POST" enctype="multipart/form-data">
+        <form method="POST">
             {% csrf_token %}
             <fieldset class="form-group">
-                <legend class="border-bottom border-top mb-4">Сотрудник</legend>
+                <legend class="border-bottom border-top mb-4">Личные качества</legend>
                 {{ form|crispy }}
             </fieldset>
             <div class="form-group">
@@ -14,5 +14,3 @@
         </form>
     </div>
 {% endblock content %}
-
-
