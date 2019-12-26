@@ -40,6 +40,7 @@ def profile_method(request):
             position = positions.filter(position_name__exact=form.cleaned_data['position']).first()
             raitings = get_raitings(employees, position)
             position_profile = method.position_profile(position)
+            best_employee = get_best_employee(raitings, position_profile)
             # est = estimate(employees, position)
             # education_raitings = est[0]
             # experience_raitings = est[1]
@@ -57,6 +58,7 @@ def profile_method(request):
                 'raitings': raitings,
                 'index_range': index_range,
                 'position_profile': position_profile,
+                'best_employee': best_employee,
             }
             return render(request, 'HRMS/test.html', context)
     # if form.is_valid():
@@ -81,6 +83,7 @@ def get_raitings(employees, position):
     lang_raitings = method.language_raitings(employees, position)
     pers_raitings = method.personality_raitings(employees, position)
     appear_raitings = method.appearance_raitings(employees, position)
+    position_result = method.position_profile(position)
     raitings = dict()
     result_raitings = list()
     for employee, lang_raiting, ed_raiting, exp_raiting, pers_raiting, appear_raiting in zip(employees, lang_raitings, ed_raitings, exp_raitings, pers_raitings, appear_raitings):
@@ -92,6 +95,47 @@ def get_raitings(employees, position):
     print(f'ИТОГОВЫЕ ОЦЕНКИ: {result_raitings}')
     return raitings
 
+def get_best_employee(raitings, position_result):
+    index = 0
+    max_index = 0
+    result_raitings = list()
+    lang_raitings = list()
+    employees = list()
+    for employee, raiting in raitings.items():
+        employees.append(employee)
+        lang_raitings.append(raiting[0])
+        result_raitings.append(raiting[5])
+
+    max_raiting = max(result_raitings)
+    print('RESULT_RAITINGS:', result_raitings)
+    print('MAX_RAITING', max_raiting)
+    max_raitings = dict()
+    max_langs = dict()
+
+    if max_raiting < position_result[5]:
+        return employees
+
+    for raiting in result_raitings:
+        if raiting == max_raiting:
+            max_raitings[index] = raiting
+            max_index = index
+        index += 1
+
+    if len(max_raitings) >= 2:
+        max_lang = max(lang_raitings)
+        index = 0
+        max_index = 0
+        for raiting in lang_raitings:
+            if raiting == max_lang:
+                max_langs[index] = raiting
+                max_index = index
+            index += 1
+        return employees[max_index]
+
+    if employees:
+        return employees[max_index]
+    else:
+        return employees
 
 # def estimate(employees, position):
 #     raitings = list()
