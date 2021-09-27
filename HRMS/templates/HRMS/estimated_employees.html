@@ -38,13 +38,13 @@
     <div class="form-group">
         <p>Шкала оценок требований:</p>
         <ol>
-            <li>Не проявляется требование</li>
-            <li>Недостаточно проявляется</li>
-            <li>Достаточно</li>
-            <li>Среднее проявление</li>
-            <li>Хорошее</li>
-            <li>Очень хорошее</li>
-            <li>Отлично</li>
+            <li>Кандидат не владеет навыком</li>
+            <li>Кандидат владеет навыком недостаточно</li>
+            <li>Навык у кандидата проявляется достаточно четко</li>
+            <li>Навык у кандидата проявляется со средней активностью</li>
+            <li>Кандидат хорошо владеет навыком</li>
+            <li>Кандидат владеет навыком очень хорошо</li>
+            <li>Кандидат владеет навыком превосходно</li>
         </ol>
     </div>
     <div class="form-group">
@@ -65,52 +65,51 @@
             </tr>
             <tr>
                 <td align="center">Специальные знания</td>
-                {% for employee, raiting in raitings.items %}
-                    <td align="center">{{ raiting.0 }}</td>
+                {% for skill_grade in skills_grades %}
+                    <td align="center">{{ skill_grade }}</td>
                 {% endfor %}
-                <td align="center">{{ position_profile.0 }}</td>
+                <td align="center">{{ requirement_grade }}</td>
             </tr>
             <tr>
                 <td align="center">Образование</td>
-                {% for employee, raiting in raitings.items %}
-                    <td align="center">{{ raiting.1 }}</td>
+                {% for employee in employees %}
+                    <td align="center">{{ employee.education }}</td>
                 {% endfor %}
-                <td align="center">{{ position_profile.1 }}</td>
+                <td align="center">{{ position.education }}</td>
             </tr>
             <tr>
                 <td align="center">Опыт</td>
-                {% for employee, raiting in raitings.items %}
-                    <td align="center">{{ raiting.2 }}</td>
+                {% for employee in employees %}
+                    <td align="center">{{ employee.experience}}</td>
                 {% endfor %}
-                <td align="center">{{ position_profile.2 }}</td>
+                <td align="center">{{position.experience }}</td>
             </tr>
             <tr>
                 <td align="center">Личность</td>
-                {% for employee, raiting in raitings.items %}
-                    <td align="center">{{ raiting.3 }}</td>
+                {% for employee in employees %}
+                    <td align="center">{{ employee.sociability }}</td>
                 {% endfor %}
-                <td align="center">{{ position_profile.3 }}</td>
+                <td align="center">{{ position.sociability }}</td>
             </tr>
             <tr>
                 <td align="center">Внешний облик</td>
-                {% for employee, raiting in raitings.items %}
-                    <td align="center">{{ raiting.4 }}</td>
+                {% for employee in employees %}
+                    <td align="center">{{ employee.attractiveness }}</td>
                 {% endfor %}
-                <td align="center">{{ position_profile.4 }}</td>
+                <td align="center">{{ position.attractiveness }}</td>
             </tr>
             <tr>
                 <td align="center">Итоговая оценка</td>
-                {% for employee, raiting in raitings.items %}
-                    <td align="center">{{ raiting.5 }}</td>
+                {% for employee, raiting in estimated_employees.items %}
+                    <td align="center">{{ raiting }}</td>
                 {% endfor %}
-                <td align="center">{{ position_profile.5 }}</td>
+                <td align="center"> 0 </td>
             </tr>
         </table>
-        {% if best_employee %}
-            <h3>Лучший кандидат: {{ best_employee.first_name }} {{ best_employee.last_name }}</h3>
-        {% else %}
-            <h3>Ни один из кандидатов не подходит под эту должость</h3>
-        {% endif %}
+        <h3>Лучшие кандидаты:</h3>
+        {% for best_employee in best_employees %}
+            <p>{{ best_employee.first_name }} {{ best_employee.last_name }}</p>
+        {% endfor %}
     </div>
   </form>
 {% endblock content %}

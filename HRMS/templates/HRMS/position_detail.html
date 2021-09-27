@@ -3,73 +3,28 @@
     <article class="media content-section">
         <div class="media-body">
             <div class="article-metadata">
-              <h1 class="mr-2"><b>Должность</b></h2>
-              <p class="mr-2">{{ object.position_name }}</p>
-              <h2 class="mr-2"><b>Минимальные требования:</b></h2>
-              <h3 class="mr-2">Специальные знания:</h3>
+              <h1 class="mr-2"><b>Должность: {{ object.position_name }}</b></h2>            
 
-              <!-- Иностранный язык -->
+              <!-- Специальные требования -->
+              <div class="article-metadata">
+                  <h3 class="mr-2">Специальные требования:</h3>
+                  {% for requirement in position.requirement_set.all %}
+                      <p class="mr-2">Название требования: {{ requirement.requirement_name }}</p>
+                      <p class="mr-2">Уровень требования: {{ requirement.value }}</p>
+                  {% endfor %}
+              </div>
 
-              {% if position.foreign_language == 'Нет' %}
-                <p class="mr-2"><b>Знание языка:</b>              {{ position.foreign_language }}</p>
-              {% else %}
-                <p class="mr-2"><b>Знание языка:</b>              {{ position.foreign_language }}</p>
-              {% if position.language_level == 1 %}
-                <p class="mr-2"><b>Уровень знания языка:</b> A1</p>
-              {% endif %}
-              {% if position.language_level == 2 %}
-                <p class="mr-2"><b>Уровень знания языка:</b> A2</p>
-              {% endif %}
-              {% if position.language_level == 3 %}
-                <p class="mr-2"><b>Уровень знания языка:</b> B1</p>
-              {% endif %}
-              {% if position.language_level == 4 %}
-                <p class="mr-2"><b>Уровень знания языка:</b> B2</p>
-              {% endif %}
-              {% if position.language_level == 5 %}
-                <p class="mr-2"><b>Уровень знания языка:</b> C1</p>
-              {% endif %}
-              {% if position.language_level == 6 %}
-                <p class="mr-2"><b>Уровень знания языка:</b> C2</p>
-              {% endif %}            
-
-              <h3 class="mr-2">Образование:</h3>
+              
               <!-- Образование -->
-
-              {% endif %}
-              {% if position.education_required == 0 %}
-                <p class="mr-2"><b>Образование:</b> Образование не требуется</p>
-              {% endif %}
-              {% if position.education_required == 1 %}
-                <p class="mr-2"><b>Образование:</b> Среднее образование</p>
-              {% endif %}
-              {% if position.education_required == 2 %}
-                <p class="mr-2"><b>Образование:</b> Высшее образование</p>
-              {% endif %}
+              <h3 class="mr-2">Образование: {{ position.education }}</h3>
 
 
-              <h3 class="mr-2">Опыт работы:</h3>
               <!-- Опыт работы -->
-
-              {% if position.experience_required == 1 %}
-                <p class="mr-2"><b>Опыт работы:</b> 1 год </p>
-              {% endif %}
-              {% if position.experience_required == 2 %}
-                <p class="mr-2"><b>Опыт работы:</b> 2 года </p>
-              {% endif %}
-              {% if position.experience_required == 3 %}
-                <p class="mr-2"><b>Опыт работы:</b> 3 года </p>
-              {% endif %}
-              {% if position.experience_required == 4 %}
-                <p class="mr-2"><b>Опыт работы:</b> 4 года </p>
-              {% endif %}
-              {% if position.experience_required == 5 %}
-                <p class="mr-2"><b>Опыт работы:</b> 5 лет </p>
-              {% endif %}
+              <h3 class="mr-2">Опыт работы: {{ position.experience }}</h3>
 
 
-              <h3 class="mr-2">Личность:</h3>
               <!-- Личность -->
+              <h3 class="mr-2">Личность:</h3>
 
               <p class="mr-2">Степень выраженности 1 до 7</p>
               <p class="mr-2">1 - выраженное левое значение, 7 - выраженное правое значение</p>
@@ -99,9 +54,10 @@
                 <p class="mr-2"><b>Раскованный - напряженный:</b> {{ position.tension }}</p>
               {% endif %}
 
-              <h3 class="mr-2">Внешний облик:</h3>
-              <!-- Внешний облик -->
 
+              <!-- Внешний облик -->
+              <h3 class="mr-2">Внешний облик:</h3>
+              
               <p class="mr-2">Степень выраженности 1 до 7</p>
               <p class="mr-2">1 - выраженное левое значение, 7 - выраженное правое значение</p>
               {% if position.attractiveness == None %}
@@ -110,9 +66,11 @@
                 <p class="mr-2"><b>Менее привлекательный - более привлекательный:</b> {{ position.attractiveness }}</p>
               {% endif %}
             </div>
+
             <form method="GET">
                 <a class="btn btn-outline-info mt-1 mb-1" type="submit" href="{% url 'position-update' position.id %}">Профессиональные качества</a>
-                <a class="btn btn-outline-info mt-1 mb-1" type="submit" href="{% url 'position_person-update' position.id %}">Личные качества</a>
+                <a class="btn btn-outline-info mt-1 mb-1" type="submit" href="{% url 'requirement-update' position.id %}">Специальные требования</a>
+                <a class="btn btn-outline-info mt-1 mb-1" type="submit" href="{% url 'position_personality-update' position.id %}">Личные качества</a>
                 <a class="btn btn-outline-danger mt-1 mb-1 ml-2" href="{% url 'position-delete' position.id %}">Удалить</a>
             </form>
         </div>

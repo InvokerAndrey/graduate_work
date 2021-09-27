@@ -9,17 +9,10 @@ from django.forms import inlineformset_factory
 from django.http import HttpResponse
 from django.template.loader import get_template
 
-from .models import Employee, Education, Experience, Position, Task, ForeignLanguage
-from .forms import (
-    EmployeeForm, 
-    EducationForm, 
-    ExperienceForm,
-    PositionForm, 
-    TaskForm,  
-    PositionFilter,
-)
+from .models import Employee, Position, Task, Requirement, Skill
+from .forms import EmployeeForm, PositionForm, TaskForm,  PositionFilter
 from .utils import render_to_pdf
-import HRMS.profile_method as method
+import HRMS.estimate as estimate
 
 
 def home(request):
@@ -38,190 +31,23 @@ def profile_method(request):
         if form.cleaned_data['position']:
             employees = employees.filter(position__exact=None)
             position = positions.filter(position_name__exact=form.cleaned_data['position']).first()
-            raitings = get_raitings(employees, position)
-            position_profile = method.position_profile(position)
-            best_employee = get_best_employee(raitings, position_profile)
-            # est = estimate(employees, position)
-            # education_raitings = est[0]
-            # experience_raitings = est[1]
-            # language_raitings = est[2]
-            # course_raitings = est[3]
-            # raitings = est[4]
-            # results = est[5]
-            # raited_employees = dict()
-            # for employee, education_raiting, experience_raiting, language_raiting, course_raiting, raiting, result in zip(employees, education_raitings, experience_raitings, language_raitings, course_raitings, raitings, results):
-            #     raited_employees[employee] = [education_raiting, experience_raiting, language_raiting, course_raiting, raiting, result]
-            index_range = range(1, len(employees) + 2)
+            estimate_result = estimate.get_estimated_employees(employees, position)
+            estimated_employees = estimate_result[0]
+            best_employees = estimate_result[1]
+            index_range = range(1, len(estimated_employees) + 2)
+            skills_grades = estimate.get_skills_grades(employees)
+            requirement_grade = estimate.get_requirement_grade(position)
             context = {
                 'employees': employees,
                 'position': position,
-                'raitings': raitings,
+                'estimated_employees': estimated_employees,
+                'best_employees': best_employees,
                 'index_range': index_range,
-                'position_profile': position_profile,
-                'best_employee': best_employee,
+                'skills_grades': skills_grades,
+                'requirement_grade': requirement_grade,
             }
-            return render(request, 'HRMS/test.html', context)
-    # if form.is_valid():
-    #     if form.cleaned_data['position']:
-    #         employees = employees.filter(position__exact=form.cleaned_data['position'])
-    #         raitings = estimate(employees)
-    #         raited_employees = dict()
-    #         for employee, raiting in zip(employees, raitings):
-    #             raited_employees[employee] = raiting
-    #         context = {
-    #             'employees': employees,
-    #             'form': form,
-    #             'raited_employees': raited_employees
-    #         }
-    #         return render(request, 'HRMS/profile_method.html', context)
+            return render(request, 'HRMS/estimated_employees.html', context)
     return render(request, 'HRMS/profile_method.html', {'form': form})
-
-
-def get_raitings(employees, position):
-    ed_raitings = method.education_raitings(employees, position)
-    exp_raitings = method.experience_raitings(employees, position)
-    lang_raitings = method.language_raitings(employees, position)
-    pers_raitings = method.personality_raitings(employees, position)
-    appear_raitings = method.appearance_raitings(employees, position)
-    position_result = method.position_profile(position)
-    raitings = dict()
-    result_raitings = list()
-    for employee, lang_raiting, ed_raiting, exp_raiting, pers_raiting, appear_raiting in zip(employees, lang_raitings, ed_raitings, exp_raitings, pers_raitings, appear_raitings):
-        result_raiting = round(
-            (lang_raiting * 0.37) + (ed_raiting * 0.26) + (exp_raiting * 0.15) + (pers_raiting * 0.14) + (appear_raiting * 0.08)
-        )
-        raitings[employee] = [lang_raiting, ed_raiting, exp_raiting, pers_raiting, appear_raiting, result_raiting]
-        result_raitings.append(result_raiting)
-    print(f'ИТОГОВЫЕ ОЦЕНКИ: {result_raitings}')
-    return raitings
-
-def get_best_employee(raitings, position_result):
-    index = 0
-    max_index = 0
-    result_raitings = list()
-    lang_raitings = list()
-    employees = list()
-    for employee, raiting in raitings.items():
-        employees.append(employee)
-        lang_raitings.append(raiting[0])
-        result_raitings.append(raiting[5])
-
-    max_raiting = max(result_raitings)
-    print('RESULT_RAITINGS:', result_raitings)
-    print('MAX_RAITING', max_raiting)
-    max_raitings = dict()
-    max_langs = dict()
-
-    if max_raiting < position_result[5]:
-        return employees
-
-    for raiting in result_raitings:
-        if raiting == max_raiting:
-            max_raitings[index] = raiting
-            max_index = index
-        index += 1
-
-    if len(max_raitings) >= 2:
-        max_lang = max(lang_raitings)
-        index = 0
-        max_index = 0
-        for raiting in lang_raitings:
-            if raiting == max_lang:
-                max_langs[index] = raiting
-                max_index = index
-            index += 1
-        return employees[max_index]
-
-    if employees:
-        return employees[max_index]
-    else:
-        return employees
-
-# def estimate(employees, position):
-#     raitings = list()
-#     education_raitings = list()
-#     experience_raitings = list()
-#     course_raitings = list()
-#     language_raitings = list()
-#     results = list()
-#     for employee in employees:
-#         suits = True
-#         language_raiting = 0
-#         education_raiting = 0
-#         experience_raiting = 0
-#         course_raiting = 0
-#         raiting = 0
-#         if employee.education_set.all():
-#             for education in employee.education_set.all():
-#                 if education.education_type < position.education_required:
-#                     suits = False
-#                 if education.education_type == 2:
-#                     education_raiting += 10
-#                 elif education.education_type == 1:
-#                     education_raiting += 5
-#         elif position.education_required == 0:
-#             pass
-#         else:
-#             suits = False
-#         if employee.experience_set.all():
-#             for experience in employee.experience_set.all():
-#                 experience_raiting += 5
-#                 exp = experience.expiration_date - experience.beginning_date
-#                 exp_years = exp.days / 365
-#                 experience_raiting += int(exp_years * 5)
-#                 if exp_years < position.experience_required:
-#                     suits = False
-#         elif position.experience_required == 0:
-#             pass
-#         else:
-#             suits = False
-        
-#         if employee.foreignlanguage_set.all():
-#             lang = False
-#             if employee.foreignlanguage_set.all():
-#                 for language in employee.foreignlanguage_set.all():
-#                     language_raiting += 1
-#                     language_raiting += language.level
-#                     if position.foreign_language == None:
-#                         lang = True
-#                     if language.language_name == position.foreign_language:
-#                         if language.level >= position.language_level:
-#                             lang = True
-
-#                 if not lang:
-#                     suits = False
-#         elif position.foreign_language == 'Нет':
-#             pass
-#         else:
-#             suits = False
-
-#         if employee.course_set.all():
-#             for course in employee.course_set.all():
-#                 course_raiting += 5
-
-#             if position.course_required == 'Нет':
-#                 pass
-#             else:
-#                 spec = False
-#                 for course in employee.course_set.all():
-#                     if course.specialization == position.course_required:
-#                         spec = True
-#                 if not spec:
-#                     suits = False
-#         elif position.course_required == 'Нет':
-#             pass
-#         else:
-#             suits = False
-
-#         raiting = language_raiting + course_raiting + education_raiting + experience_raiting
-
-#         language_raitings.append(language_raiting)
-#         course_raitings.append(course_raiting)
-#         education_raitings.append(education_raiting)
-#         experience_raitings.append(experience_raiting)
-#         raitings.append(raiting)
-#         results.append(suits)
-#     return (education_raitings, experience_raitings, language_raitings, course_raitings, raitings, results)
 
 
 class EmployeeListView(LoginRequiredMixin, ListView):
@@ -291,10 +117,8 @@ class PositionCreateView(LoginRequiredMixin, CreateView):
     model = Position
     fields = [
         'position_name',
-        'foreign_language',
-        'language_level',
-        'education_required',
-        'experience_required',
+        'education',
+        'experience',
     ]
 
     def form_valid(self, form):
@@ -344,15 +168,44 @@ class EmployeeUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return reverse_lazy('employee-detail', kwargs={'pk': self.object.pk})
 
 
+class EmployeeEducationUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Employee
+    fields = [
+        'education'
+    ]
+    
+    def test_func(self):
+        employee = self.get_object()
+        if self.request.user == employee.user:
+            return True
+        return False
+
+    def get_success_url(self):
+        return reverse_lazy('employee-detail', kwargs={'pk': self.object.pk})
+
+
+class EmployeeExperienceUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Employee
+    fields = [
+        'experience'
+    ]
+    
+    def test_func(self):
+        employee = self.get_object()
+        if self.request.user == employee.user:
+            return True
+        return False
+
+    def get_success_url(self):
+        return reverse_lazy('employee-detail', kwargs={'pk': self.object.pk})
+
 
 class PositionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Position
     fields = [
         'position_name',
-        'foreign_language',
-        'language_level',
-        'education_required',
-        'experience_required',
+        'education',
+        'experience',
     ]
     
     def test_func(self):
@@ -392,62 +245,6 @@ class PositionDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 
 @login_required
-def update_educations(request, employee_id):
-    employee = Employee.objects.get(pk=employee_id)
-    EducationFormset = inlineformset_factory(
-        Employee, 
-        Education, 
-        fields = [
-            'education_type', 
-            'institution_name', 
-            'faculty', 
-            'specialty', 
-            'beginning_date', 
-            'expiration_date', 
-        ],
-        extra=1
-    )
-    if request.method == 'POST':
-        formset = EducationFormset(request.POST, instance=employee)
-        if formset.is_valid():
-            formset.save()
-        return redirect('employee-detail', pk = employee.id)
-
-    formset = EducationFormset(instance=employee)
-
-    absolute_url = reverse_lazy('employee-detail', kwargs={'pk': employee.id})
-
-    return render(request, 'HRMS/educations_form.html', {'formset': formset})
-
-
-@login_required
-def update_experiences(request, employee_id):
-    employee = Employee.objects.get(pk=employee_id)
-    ExperienceFormset = inlineformset_factory(
-        Employee, 
-        Experience, 
-        fields = [
-            'job',
-            'beginning_date',
-            'expiration_date',
-            'position',
-        ],
-        extra=1
-    )
-    if request.method == 'POST':
-        formset = ExperienceFormset(request.POST, instance=employee)
-        if formset.is_valid():
-            formset.save()
-        return redirect('employee-detail', pk = employee.id)
-
-    formset = ExperienceFormset(instance=employee)
-
-    absolute_url = reverse_lazy('employee-detail', kwargs={'pk': employee.id})
-
-    return render(request, 'HRMS/experiences_form.html', {'formset': formset})
-
-
-@login_required
 def update_tasks(request, employee_id):
     employee = Employee.objects.get(pk=employee_id)
     TaskFormset = inlineformset_factory(
@@ -476,28 +273,53 @@ def update_tasks(request, employee_id):
 
 
 @login_required
-def update_languages(request, employee_id):
+def update_skills(request, employee_id):
     employee = Employee.objects.get(pk=employee_id)
-    LanguageFormset = inlineformset_factory(
-        Employee,
-        ForeignLanguage,
+    TaskFormset = inlineformset_factory(
+        Employee, 
+        Skill, 
         fields = [
-            'language_name',
-            'level',
+            'skill_name',
+            'value',
         ],
         extra=1
     )
     if request.method == 'POST':
-        formset = LanguageFormset(request.POST, instance=employee)
+        formset = TaskFormset(request.POST, instance=employee)
         if formset.is_valid():
             formset.save()
         return redirect('employee-detail', pk = employee.id)
 
-    formset = LanguageFormset(instance=employee)
+    formset = TaskFormset(instance=employee)
 
     absolute_url = reverse_lazy('employee-detail', kwargs={'pk': employee.id})
 
-    return render(request, 'HRMS/languages_form.html', {'formset': formset})
+    return render(request, 'HRMS/skills_form.html', {'formset': formset})
+
+
+@login_required
+def update_requirements(request, position_id):
+    position = Position.objects.get(pk=position_id)
+    TaskFormset = inlineformset_factory(
+        Position, 
+        Requirement, 
+        fields = [
+            'requirement_name',
+            'value',
+        ],
+        extra=1
+    )
+    if request.method == 'POST':
+        formset = TaskFormset(request.POST, instance=position)
+        if formset.is_valid():
+            formset.save()
+        return redirect('position-detail', pk = position.id)
+
+    formset = TaskFormset(instance=position)
+
+    absolute_url = reverse_lazy('position-detail', kwargs={'pk': position.id})
+
+    return render(request, 'HRMS/requirements_form.html', {'formset': formset})
 
 
 class PersonalityUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -547,7 +369,7 @@ class PositionPersonalUpdateView(LoginRequiredMixin, UserPassesTestMixin, Update
         'attractiveness',
     ]
 
-    template_name = 'HRMS/position_person_form.html'
+    template_name = 'HRMS/position_personality_form.html'
 
     def test_func(self):
         employee = self.get_object()
@@ -556,4 +378,4 @@ class PositionPersonalUpdateView(LoginRequiredMixin, UserPassesTestMixin, Update
         return False
 
     def get_success_url(self):
-        return reverse_lazy('employee-detail', kwargs={'pk': self.object.pk})
+        return reverse_lazy('position-detail', kwargs={'pk': self.object.pk})

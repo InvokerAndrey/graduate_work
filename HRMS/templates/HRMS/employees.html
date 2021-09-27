@@ -16,7 +16,7 @@
               {% if employee.position == None %}
                 <p class="mr-2"><b>Должность:</b> Не назначен</p>
               {% else %}
-                <p class="mr-2"><b>Должность:</b>    {{ employee.position }}</p>
+                <p class="mr-2"><b>Должность:</b> {{ employee.position }}</p>
               {% endif %}
             </div>
             <form method="GET" action="{% url 'employee-detail' employee.id %}">

@@ -14,7 +14,7 @@ DATE_INPUT_FORMATS = ['%d-%m-%Y']
 
 
 class PositionFilter(forms.Form):
-    position = forms.ModelChoiceField(required=False, label='Position', queryset=models.Position.objects.distinct('position_name'))
+    position = forms.ModelChoiceField(required=False, label='Position', queryset=models.Position.objects.all()) # для postgre distinct('position_name') вместо all()
 
 
 class UserRegisterForm(UserCreationForm):
@@ -48,6 +48,7 @@ class PositionForm(ModelForm):
     class Meta:
         model = models.Position
         fields = ['position_name']
+        
 
 class TaskForm(ModelForm):
     class Meta:
@@ -87,29 +88,3 @@ class EmployeeUpdateForm(ModelForm):
             'position',
         ]
         localized_fields = ('birthday',)
-
-
-class EducationForm(ModelForm):
-    class Meta:
-        model = models.Education
-        fields = [
-            'education_type', 
-            'institution_name', 
-            'faculty', 
-            'specialty', 
-            'beginning_date', 
-            'expiration_date', 
-        ]
-        # localized_fields = ('beginning_date', 'expiration_date',)
-
-
-class ExperienceForm(ModelForm):
-    class Meta:
-        model = models.Experience
-        fields = [
-            'job',
-            'beginning_date',
-            'expiration_date',
-            'position',
-        ]
-        # localized_fields = ('beginning_date', 'expiration_date',)
